@@ -1,0 +1,26 @@
+# Binaries and build
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+bin/
+tmp/
+
+# Environment and IDE
+.env
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Dependencies
+vendor/
+
+# Logs
+*.log
+
+# Database
+*.db
