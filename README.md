@@ -11,3 +11,7 @@ JWT_SECRET=your-super-secret-key-change-this-in-production
 RATE_LIMIT=100
 RATE_LIMIT_WINDOW=1m
 LOG_LEVEL=debug
+--------
+cd c:\Users\User\Desktop\as\docker
+docker-compose down
+docker-compose up --build -d
