@@ -5,10 +5,11 @@ import (
     _ "github.com/lib/pq"
     "github.com/labstack/echo/v4"
     "github.com/labstack/echo/v4/middleware"
-    "tracker/internal/config"
-    "tracker/internal/delivery/http/handlers"
-    "tracker/internal/domain/usecase"
-    "tracker/internal/repository/postgres"
+    "github.com/mfaxmodem/tracker/internal/config"
+    "github.com/mfaxmodem/tracker/internal/delivery/http/handlers"
+    "github.com/mfaxmodem/tracker/internal/domain/usecase"
+    "github.com/mfaxmodem/tracker/internal/repository/postgres"
+    "github.com/mfaxmodem/tracker/pkg/validator"
 )
 
 func main() {
@@ -19,6 +20,9 @@ func main() {
     if err != nil {
         e.Logger.Fatal(err)
     }
+
+    // Set up validator
+    e.Validator = validator.NewValidator()
 
     // Middleware
     e.Use(middleware.Logger())
@@ -36,7 +40,10 @@ func main() {
     repo := postgres.NewRepository(db)
     adminUsecase := usecase.NewAdminUsecase(repo)
     locationUsecase := usecase.NewLocationUsecase(repo)
-    handlers.NewHandler(e, adminUsecase, locationUsecase)
+    
+    // Initialize handlers and register routes
+    handler := handlers.NewHandler(e, adminUsecase, locationUsecase)
+    handler.RegisterRoutes(e)  // اضافه کردن این خط برای ثبت مسیرها
 
     // Start server
     e.Logger.Fatal(e.Start(":" + cfg.APIPort))

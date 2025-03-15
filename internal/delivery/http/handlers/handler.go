@@ -2,7 +2,7 @@ package handlers
 
 import (
     "github.com/labstack/echo/v4"
-    "tracker/internal/domain/usecase"
+    "github.com/mfaxmodem/tracker/internal/domain/usecase"
 )
 
 type Handler struct {
@@ -11,19 +11,17 @@ type Handler struct {
 }
 
 func NewHandler(e *echo.Echo, au usecase.AdminUsecase, lu usecase.LocationUsecase) *Handler {
-    h := &Handler{
+    return &Handler{
         adminUsecase:    au,
         locationUsecase: lu,
     }
+}
 
-    // Setup routes
-    api := e.Group("/api/v1")
-    
-    // Auth routes
-    api.POST("/admin/login", h.Login)
-    
+func (h *Handler) RegisterRoutes(e *echo.Echo) {
     // Admin routes
-    admin := api.Group("/admin")
+    admin := e.Group("/api/v1/admin")
+    admin.POST("/register", h.RegisterAdmin)
+    admin.POST("/login", h.Login)
     admin.GET("/visitors", h.GetVisitors)
     admin.POST("/visitors", h.CreateVisitor)
     admin.GET("/stores", h.GetStores)
@@ -32,8 +30,8 @@ func NewHandler(e *echo.Echo, au usecase.AdminUsecase, lu usecase.LocationUsecas
     admin.POST("/routes", h.CreateRoute)
 
     // Location routes
-    api.POST("/location", h.TrackLocation)
-    api.GET("/visitor/routes", h.GetVisitorRoutes)
-
-    return h
+    location := e.Group("/api/v1/location")
+    location.POST("/track", h.TrackLocation)
+    location.GET("/visitor/:id", h.GetVisitorLocations)
+    location.GET("/visitor/:id/routes", h.GetVisitorRoutesHandler)
 }

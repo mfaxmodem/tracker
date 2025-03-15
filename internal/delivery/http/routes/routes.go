@@ -2,8 +2,8 @@ package routes
 
 import (
     "github.com/labstack/echo/v4"
-    "tracker/internal/delivery/http/handlers"
-    "tracker/internal/delivery/http/middlewares"
+    "github.com/mfaxmodem/tracker/internal/delivery/http/handlers"
+    "github.com/mfaxmodem/tracker/internal/delivery/http/middlewares"
 )
 
 func SetupRoutes(e *echo.Echo, h *handlers.Handler) {

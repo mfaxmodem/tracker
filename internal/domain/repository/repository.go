@@ -1,6 +1,6 @@
 package repository
 
-import "tracker/internal/domain/models"
+import "github.com/mfaxmodem/tracker/internal/domain/models"
 
 type Repository interface {
     // User operations

@@ -1,69 +1,59 @@
 package usecase
 
 import (
-    "tracker/internal/domain/models"
-    "tracker/internal/domain/repository"
+    "github.com/mfaxmodem/tracker/internal/domain/models"
+    "github.com/mfaxmodem/tracker/internal/repository/postgres"
 )
 
 type adminUsecase struct {
-    repo repository.Repository
+    repo *postgres.Repository
 }
 
-func NewAdminUsecase(repo repository.Repository) AdminUsecase {
+func NewAdminUsecase(repo *postgres.Repository) AdminUsecase {
     return &adminUsecase{
         repo: repo,
     }
 }
 
-func (u *adminUsecase) GetAllVisitors() ([]models.User, error) {
-    return u.repo.GetAllVisitors()
+type AdminUsecase interface {
+    GetAllVisitors() ([]models.User, error)
+    CreateVisitor(*models.User) error
+    GetAllStores() ([]models.Store, error)
+    CreateStore(*models.Store) error
+    GetAllRoutes() ([]models.Route, error)
+    CreateRoute(*models.Route) error
+    CreateUser(*models.User) error
+    GetUserByEmail(email string) (*models.User, error) // Add this method
 }
 
-func (u *adminUsecase) CreateVisitor(user *models.User) error {
-    user.Role = "visitor"
-    return u.repo.CreateUser(user)
+func (au *adminUsecase) GetAllVisitors() ([]models.User, error) {
+    return au.repo.GetAllVisitors()
 }
 
-func (u *adminUsecase) UpdateVisitor(user *models.User) error {
-    return u.repo.UpdateUser(user)
+func (au *adminUsecase) CreateVisitor(user *models.User) error {
+    return au.repo.CreateUser(user)
 }
 
-func (u *adminUsecase) DeleteVisitor(id int64) error {
-    return u.repo.DeleteUser(id)
+func (au *adminUsecase) GetAllStores() ([]models.Store, error) {
+    return au.repo.GetStores()
 }
 
-func (u *adminUsecase) GetAllStores() ([]models.Store, error) {
-    return u.repo.GetStores()
+func (au *adminUsecase) CreateStore(store *models.Store) error {
+    return au.repo.SaveStore(store)
 }
 
-func (u *adminUsecase) CreateStore(store *models.Store) error {
-    return u.repo.SaveStore(store)
+func (au *adminUsecase) GetAllRoutes() ([]models.Route, error) {
+    return au.repo.GetAllRoutes()
 }
 
-func (u *adminUsecase) UpdateStore(store *models.Store) error {
-    return u.repo.UpdateStore(store)
+func (au *adminUsecase) CreateRoute(route *models.Route) error {
+    return au.repo.SaveRoute(route)
 }
 
-func (u *adminUsecase) DeleteStore(id int64) error {
-    return u.repo.DeleteStore(id)
+func (au *adminUsecase) CreateUser(user *models.User) error {
+    return au.repo.CreateUser(user)
 }
 
-func (u *adminUsecase) GetAllRoutes() ([]models.Route, error) {
-    return u.repo.GetAllRoutes()
-}
-
-func (u *adminUsecase) CreateRoute(route *models.Route) error {
-    return u.repo.SaveRoute(route)
-}
-
-func (u *adminUsecase) UpdateRoute(route *models.Route) error {
-    return u.repo.UpdateRoute(route)
-}
-
-func (u *adminUsecase) DeleteRoute(id int64) error {
-    return u.repo.DeleteRoute(id)
-}
-
-func (u *adminUsecase) GetUserByEmail(email string) (*models.User, error) {
-    return u.repo.GetUserByEmail(email)
+func (au *adminUsecase) GetUserByEmail(email string) (*models.User, error) {
+    return au.repo.GetUserByEmail(email)
 }

@@ -2,9 +2,10 @@ package handlers
 
 import (
     "net/http"
+    "strconv"
     "github.com/labstack/echo/v4"
-    "tracker/internal/domain/models"
-    "tracker/internal/domain/usecase"
+    "github.com/mfaxmodem/tracker/internal/domain/models"
+    "github.com/mfaxmodem/tracker/internal/domain/usecase"
 )
 
 type LocationHandler struct {
@@ -32,13 +33,32 @@ func (h *Handler) TrackLocation(c echo.Context) error {
     })
 }
 
-func (h *Handler) GetVisitorRoutes(c echo.Context) error {
-    visitorID := c.Get("user_id").(int64)
+// Add these methods to handle location routes
+
+func (h *Handler) GetVisitorLocations(c echo.Context) error {
+    visitorID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+    if err != nil {
+        return echo.NewHTTPError(http.StatusBadRequest, "Invalid visitor ID")
+    }
+    
+    locations, err := h.locationUsecase.GetVisitorLocations(visitorID)
+    if err != nil {
+        return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+    }
+    
+    return c.JSON(http.StatusOK, locations)
+}
+
+func (h *Handler) GetVisitorRoutesHandler(c echo.Context) error {
+    visitorID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+    if err != nil {
+        return echo.NewHTTPError(http.StatusBadRequest, "Invalid visitor ID")
+    }
     
     routes, err := h.locationUsecase.GetVisitorRoutes(visitorID)
     if err != nil {
         return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
     }
-
+    
     return c.JSON(http.StatusOK, routes)
 }

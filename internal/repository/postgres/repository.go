@@ -370,9 +370,9 @@ func (r *Repository) SaveLocation(location *models.Location) error {
     ).Scan(&location.ID)
 }
 
-func (r *Repository) GetLocations(visitorID int64) ([]models.Location, error) {
+func (r *Repository) GetVisitorLocations(visitorID int64) ([]models.Location, error) {
     query := `
-        SELECT id, visitor_id, latitude, longitude, timestamp
+        SELECT id, visitor_id, latitude, longitude, timestamp, created_at, updated_at
         FROM locations
         WHERE visitor_id = $1
         ORDER BY timestamp DESC`
@@ -385,17 +385,19 @@ func (r *Repository) GetLocations(visitorID int64) ([]models.Location, error) {
 
     var locations []models.Location
     for rows.Next() {
-        var l models.Location
+        var loc models.Location
         if err := rows.Scan(
-            &l.ID,
-            &l.VisitorID,
-            &l.Latitude,
-            &l.Longitude,
-            &l.Timestamp,
+            &loc.ID,
+            &loc.VisitorID,
+            &loc.Latitude,
+            &loc.Longitude,
+            &loc.Timestamp,
+            &loc.CreatedAt,
+            &loc.UpdatedAt,
         ); err != nil {
             return nil, err
         }
-        locations = append(locations, l)
+        locations = append(locations, loc)
     }
     return locations, nil
 }

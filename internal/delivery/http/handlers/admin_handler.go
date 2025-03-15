@@ -3,8 +3,9 @@ package handlers
 import (
     "net/http"
     "github.com/labstack/echo/v4"
-    "tracker/internal/domain/models"
-    "tracker/internal/domain/usecase"
+    "golang.org/x/crypto/bcrypt"  // Add this import
+    "github.com/mfaxmodem/tracker/internal/domain/models"
+    "github.com/mfaxmodem/tracker/internal/domain/usecase"
 )
 
 type AdminHandler struct {
@@ -75,4 +76,50 @@ func (h *Handler) CreateRoute(c echo.Context) error {
         return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
     }
     return c.JSON(http.StatusCreated, route)
+}
+
+// Remove this method since it's now in handler.go
+// func (h *Handler) RegisterRoutes(e *echo.Echo) {
+//     admin := e.Group("/api/v1/admin")
+//     
+//     // Add registration endpoint
+//     admin.POST("/register", h.RegisterAdmin)
+//     admin.POST("/login", h.Login)
+// }
+
+func (h *Handler) RegisterAdmin(c echo.Context) error {
+    var input struct {
+        Name     string `json:"name" validate:"required"`
+        Email    string `json:"email" validate:"required,email"`
+        Password string `json:"password" validate:"required,min=6"`
+        Role     string `json:"role" validate:"required,oneof=admin"`
+    }
+
+    if err := c.Bind(&input); err != nil {
+        return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+    }
+
+    if err := c.Validate(&input); err != nil {
+        return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+    }
+
+    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
+    if err != nil {
+        return echo.NewHTTPError(http.StatusInternalServerError, "Failed to hash password")
+    }
+
+    user := &models.User{
+        Name:         input.Name,
+        Email:        input.Email,
+        PasswordHash: string(hashedPassword),
+        Role:         input.Role,
+    }
+
+    if err := h.adminUsecase.CreateUser(user); err != nil {
+        return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create user")
+    }
+
+    return c.JSON(http.StatusCreated, map[string]string{
+        "message": "Admin registered successfully",
+    })
 }
