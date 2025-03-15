@@ -1,6 +1,7 @@
 package usecase
 
 import (
+    "fmt" // Add this import
     "github.com/mfaxmodem/tracker/internal/domain/models"
     "github.com/mfaxmodem/tracker/internal/repository/postgres"
 )
@@ -39,6 +40,17 @@ func (au *adminUsecase) GetAllStores() ([]models.Store, error) {
 }
 
 func (au *adminUsecase) CreateStore(store *models.Store) error {
+    // Check if a store with the same name and address already exists
+    existingStore, err := au.repo.GetStoreByNameAndAddress(store.Name, store.Address)
+    if err != nil {
+        return err
+    }
+
+    if existingStore != nil {
+        return fmt.Errorf("store with the same name and address already exists")
+    }
+
+    // Create the new store
     return au.repo.SaveStore(store)
 }
 

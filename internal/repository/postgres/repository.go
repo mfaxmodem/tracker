@@ -1,9 +1,9 @@
 package postgres
 
 import (
-    "database/sql"
-    "time"
     "github.com/mfaxmodem/tracker/internal/domain/models"
+    "database/sql"
+    "time" // Add this import
 )
 
 type Repository struct {
@@ -400,4 +400,17 @@ func (r *Repository) GetVisitorLocations(visitorID int64) ([]models.Location, er
         locations = append(locations, loc)
     }
     return locations, nil
+}
+
+func (r *Repository) GetStoreByNameAndAddress(name, address string) (*models.Store, error) {
+    var store models.Store
+    query := "SELECT * FROM stores WHERE name = $1 AND address = $2"
+    err := r.db.QueryRow(query, name, address).Scan(&store.ID, &store.Name, &store.Address, &store.Latitude, &store.Longitude, &store.ManagerName, &store.CreatedAt, &store.UpdatedAt)
+    if err == sql.ErrNoRows {
+        return nil, nil
+    }
+    if err != nil {
+        return nil, err
+    }
+    return &store, nil
 }
